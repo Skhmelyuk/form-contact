@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { useTheme } from "./components/theme-provider"
 import { Sun, Moon } from "lucide-react"
+import { FormContact } from "./components/FormContact"
 
 export function App() {
   const { theme, setTheme } = useTheme()
@@ -18,6 +19,9 @@ export function App() {
         >
           {theme === "dark" ? <Moon /> : <Sun />}
         </Button>
+      </div>
+      <div>
+        <FormContact />
       </div>
     </div>
   )
