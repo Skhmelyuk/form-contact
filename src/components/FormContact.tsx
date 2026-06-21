@@ -3,12 +3,22 @@ import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { Textarea } from "./ui/textarea"
 import { Label } from "./ui/label"
+import * as z from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
 
-interface Form {
-  name: string
-  email: string
-  message: string
-}
+const FormShema = z.object({
+  name: z
+    .string()
+    .min(3, "Довжина має бути більше 3 символів")
+    .max(25, "Довжина має бути не більша 25 символів"),
+  email: z
+    .string()
+    .min(1, "Поле має бути обов'язковим")
+    .email("Некоректний email"),
+  message: z.string().min(10, "Повідомлення має містити більше 10 символів"),
+})
+
+type Form = z.infer<typeof FormShema>
 
 export const FormContact = () => {
   const {
@@ -16,7 +26,13 @@ export const FormContact = () => {
     watch,
     handleSubmit,
     formState: { errors },
-  } = useForm<Form>()
+  } = useForm<Form>({
+    resolver: zodResolver(FormShema),
+    defaultValues: {
+      name: "",
+      email: "",
+    },
+  })
 
   const onSubmit: SubmitHandler<Form> = (data) => {
     console.log(data)
@@ -28,21 +44,7 @@ export const FormContact = () => {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="flex flex-col gap-1.5">
           <Label>Вашу ім'я</Label>
-          <Input
-            className="bg-white"
-            type="text"
-            {...register("name", {
-              required: "Ім'я є обов'язковим",
-              minLength: {
-                value: 5,
-                message: "довжина має бути більше 5 символів",
-              },
-              maxLength: {
-                value: 25,
-                message: "довжина має бути не більша 25 символів",
-              },
-            })}
-          />
+          <Input className="bg-white" type="text" {...register("name")} />
           {errors.name ? (
             <p className="text-sm text-red-700">{errors.name.message}</p>
           ) : (
@@ -51,17 +53,7 @@ export const FormContact = () => {
         </div>
         <div className="flex flex-col gap-1.5">
           <Label>Електрона пошта</Label>
-          <Input
-            className="bg-white"
-            type="email"
-            {...register("email", {
-              required: "Електрона почта є обов'язкова",
-              pattern: {
-                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                message: "Некоректний формат почти",
-              },
-            })}
-          />
+          <Input className="bg-white" type="email" {...register("email")} />
           {errors.email ? (
             <p className="text-sm text-red-700">{errors.email.message}</p>
           ) : (
@@ -70,12 +62,7 @@ export const FormContact = () => {
         </div>
         <div className="flex flex-col gap-1.5">
           <Label>Повідомлення</Label>
-          <Textarea
-            className="bg-white"
-            {...register("message", {
-              required: "Повідомлення є обов'язкова",
-            })}
-          />
+          <Textarea className="bg-white" {...register("message")} />
           {errors.message ? (
             <p className="text-sm text-red-700">{errors.message.message}</p>
           ) : (
