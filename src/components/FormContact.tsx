@@ -11,10 +11,12 @@ interface Form {
 }
 
 export const FormContact = () => {
-  const { register, watch, handleSubmit } = useForm<Form>()
-
-  console.log(register)
-  console.log(register("email"))
+  const {
+    register,
+    watch,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<Form>()
 
   const onSubmit: SubmitHandler<Form> = (data) => {
     console.log(data)
@@ -26,15 +28,59 @@ export const FormContact = () => {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="flex flex-col gap-1.5">
           <Label>Вашу ім'я</Label>
-          <Input className="bg-white" type="text" {...register("name")} />
+          <Input
+            className="bg-white"
+            type="text"
+            {...register("name", {
+              required: "Ім'я є обов'язковим",
+              minLength: {
+                value: 5,
+                message: "довжина має бути більше 5 символів",
+              },
+              maxLength: {
+                value: 25,
+                message: "довжина має бути не більша 25 символів",
+              },
+            })}
+          />
+          {errors.name ? (
+            <p className="text-sm text-red-700">{errors.name.message}</p>
+          ) : (
+            ""
+          )}
         </div>
         <div className="flex flex-col gap-1.5">
           <Label>Електрона пошта</Label>
-          <Input className="bg-white" type="email" {...register("email")} />
+          <Input
+            className="bg-white"
+            type="email"
+            {...register("email", {
+              required: "Електрона почта є обов'язкова",
+              pattern: {
+                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                message: "Некоректний формат почти",
+              },
+            })}
+          />
+          {errors.email ? (
+            <p className="text-sm text-red-700">{errors.email.message}</p>
+          ) : (
+            ""
+          )}
         </div>
         <div className="flex flex-col gap-1.5">
           <Label>Повідомлення</Label>
-          <Textarea className="bg-white" {...register("message")} />
+          <Textarea
+            className="bg-white"
+            {...register("message", {
+              required: "Повідомлення є обов'язкова",
+            })}
+          />
+          {errors.message ? (
+            <p className="text-sm text-red-700">{errors.message.message}</p>
+          ) : (
+            ""
+          )}
         </div>
 
         <Button type="submit" className="w-full cursor-pointer">
